@@ -5,6 +5,7 @@ annotated-types==0.7.0
 anyio==4.9.0
 asgiref==3.8.1
 attrs==25.3.0
+bson==0.5.10
 certifi==2025.1.31
 channels==4.2.2
 channels_redis==4.2.1
@@ -19,6 +20,7 @@ h11==0.14.0
 httpcore==1.0.8
 httpx==0.28.1
 httpx-sse==0.4.0
+huey==2.5.3
 idna==3.10
 jiter==0.9.0
 jsonpatch==1.33
