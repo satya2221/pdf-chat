@@ -2,6 +2,9 @@ from huey.contrib.djhuey import task
 from .models import Document, DOC_STATUS_COMPLETE
 from core.ai.mistral import mistral
 from core.ai.prompt_manager import PromptManager
+from langchain_experimental.text_splitter import SemanticChunker
+from langchain_openai.embeddings import OpenAIEmbeddings
+import json
 
 @task()
 def process_document(document: Document):
@@ -40,3 +43,8 @@ def process_document(document: Document):
     document.summary = summarized_content
     document.status = DOC_STATUS_COMPLETE
     document.save()
+
+    splitter = SemanticChunker(OpenAIEmbeddings())
+    documents = splitter.split_text(content)
+
+    print(json.dumps(documents, indent=2))
