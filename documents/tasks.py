@@ -1,5 +1,6 @@
 from huey.contrib.djhuey import task
 from .models import Document, DOC_STATUS_COMPLETE
+from core.methods import send_notification
 from core.ai.mistral import mistral
 from core.ai.prompt_manager import PromptManager
 from core.ai.chromadb import chroma, openai_ef
@@ -9,6 +10,7 @@ import json
 
 @task()
 def process_document(document: Document):
+    send_notification("notification", "Processing document")
     uploaded_pdf = mistral.files.upload(
         file={
             "file_name": document.name,
@@ -33,6 +35,7 @@ def process_document(document: Document):
     for page in ocr_result.model_dump().get("pages", []):
         content += page["markdown"]
 
+    send_notification("notification", "Summarizing document")
     pm = PromptManager()
     pm.add_message("system", "Please Summarize this following text. Extract the key points too")
     pm.add_message("user", f"Content:{content}")
@@ -45,6 +48,8 @@ def process_document(document: Document):
     document.status = DOC_STATUS_COMPLETE
     document.save()
 
+    send_notification("notification", "Creating document")
+
     splitter = SemanticChunker(OpenAIEmbeddings())
     documents = splitter.create_documents([content])
 
@@ -54,4 +59,4 @@ def process_document(document: Document):
         ids=[str(i) for i in range(len(documents))]
     )
     collection = chroma.get_collection(str(document.id))
-    print(collection.count())
+    send_notification("notification", "DONE!!!")

@@ -6,4 +6,37 @@
         <input type="file" name="file" id="file">
         <button type="submit">Upload</button>
     </form>
+
+    <section id="log"></section>
+
+    <script>
+        const ws = new WebSocket("ws://localhost:8000/ws/notifications/");
+
+        ws.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+
+            const type = data.message.type;
+            const content = data.message.content;
+
+            if(type == "notification"){
+                const notificationLog = document.getElementById("log");
+                notificationLog.innerHTML += `<p>${content}</p>`;
+            }
+            if (type == "final_result") {
+                const notificationLog = document.getElementById("log");
+                notificationLog.innerHTML = "";
+
+                const contentSection = document.getElementById("content");
+                contentSection.innerHTML = content;
+            }
+        }
+
+        ws.onopen = function(event) {
+            console.log("Connected To Websocket");
+        }
+
+        ws.onclose = function(event) {
+            console.log("Disconnected from websocket")
+        }
+    </script>
 {% endblock %}
